@@ -10,7 +10,8 @@ docker -v
 ```
 Assuming docker is installed, it should return a docker version number - you can skip the docker installation steps.
 
-#### Installing docker (Linux - Debian/Raspbian/Ubuntu)
+### Installing docker and docker-compose(Linux - Debian/Raspbian/Ubuntu)
+#### Docker
 First update any packages and lists
 ```
 sudo apt-get update && sudo apt-get upgrade
@@ -25,11 +26,19 @@ Install it by executing the following
 sudo sh get-docker.sh
 ```
 
-Next add a non-root user to the docker group so that non-root users can run containers etc. The format of sytnax to do this is:
+Next add a non-root user to the docker group so that non-root users can run containers etc.
 ```
-sudo usermod -aG docker <USERNAME>
+sudo usermod -aG docker ${USER}
 ```
-Where `USERNAME` is replaced with a username, such as `pi` on the raspberry pi.
+
+#### Docker compose
+To install docker compose, run the following commands - usually installed from pip.
+```
+sudo apt-get install libffi-dev libssl-dev
+sudo apt install python3-dev -y
+sudo apt-get install python3 python3-pip -y
+sudo pip3 install docker-compose
+```
 
 ### Building and running containers
 Once docker is installed, you'll need to clone this repository using the following.
