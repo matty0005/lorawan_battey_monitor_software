@@ -7,20 +7,18 @@
         "info": "",
         "env": []
     },
-  
-   
     {
         "id": "1f8bde3686ef87b9",
         "type": "influxdb",
-        "hostname": "172.22.0.3",
+        "hostname": "influxdb",
         "port": "8086",
         "protocol": "http",
         "database": "database",
-        "name": "RaspberryStack",
+        "name": "Influx DB connection",
         "usetls": false,
         "tls": "2570cde888916c12",
         "influxdbVersion": "1.8-flux",
-        "url": "http://172.18.0.5:8086",
+        "url": "http://influxdb:8086",
         "rejectUnauthorized": false
     },
     {
@@ -54,8 +52,8 @@
         "id": "b3ec5f3fde5bf7d5",
         "type": "mqtt in",
         "z": "7a45013094ff9e41",
-        "name": "",
-        "topic": "v3/matty0005-battery-monitor@ttn/devices/eui-463638383512923c/up",
+        "name": "TNN (CHANGE ME)",
+        "topic": "v3/<USERNAME>/devices/<DEVICE_ID>/up",
         "qos": "2",
         "datatype": "auto",
         "broker": "fbb1f7aec07908d1",
@@ -63,8 +61,8 @@
         "rap": true,
         "rh": 0,
         "inputs": 0,
-        "x": 870,
-        "y": 1200,
+        "x": 150,
+        "y": 360,
         "wires": [
             [
                 "e7b3cf3f6da03e63"
@@ -78,8 +76,8 @@
         "name": "",
         "action": "",
         "property": "payload",
-        "x": 1460,
-        "y": 1200,
+        "x": 900,
+        "y": 360,
         "wires": [
             [
                 "765ddf96e826ec8f"
@@ -94,8 +92,8 @@
         "property": "payload",
         "action": "",
         "pretty": false,
-        "x": 1250,
-        "y": 1200,
+        "x": 690,
+        "y": 360,
         "wires": [
             [
                 "3a4d66bc21d9f257"
@@ -106,15 +104,15 @@
         "id": "3a4d66bc21d9f257",
         "type": "function",
         "z": "7a45013094ff9e41",
-        "name": "",
+        "name": "Ignore messages without a payload",
         "func": "if (msg.payload[\"uplink_message\"][\"frm_payload\"] != undefined) {\n    msg.payload = msg.payload[\"uplink_message\"][\"frm_payload\"];\n    \n    return msg\n}\nreturn null\n\n",
         "outputs": 1,
         "noerr": 0,
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 1360,
-        "y": 1080,
+        "x": 780,
+        "y": 460,
         "wires": [
             [
                 "3dbe0f52f2a8e430"
@@ -125,31 +123,32 @@
         "id": "08c02e5a68907f01",
         "type": "debug",
         "z": "7a45013094ff9e41",
-        "name": "",
-        "active": true,
+        "name": "Converted Values",
+        "active": false,
         "tosidebar": true,
         "console": false,
         "tostatus": false,
-        "complete": "false",
+        "complete": "payload",
+        "targetType": "msg",
         "statusVal": "",
         "statusType": "auto",
-        "x": 1910,
-        "y": 1120,
+        "x": 1410,
+        "y": 280,
         "wires": []
     },
     {
         "id": "765ddf96e826ec8f",
         "type": "function",
         "z": "7a45013094ff9e41",
-        "name": "",
+        "name": "Extract data",
         "func": "var data = {\n    adc_raw1: msg.payload[0] << 8 | msg.payload[1],\n    adc_raw2: msg.payload[2] << 8 | msg.payload[3],\n    adc_raw3: msg.payload[4] << 8 | msg.payload[5],\n    adc_raw4: msg.payload[6] << 8 | msg.payload[7]\n}\nmsg.payload = data\nreturn msg;",
         "outputs": 1,
         "noerr": 0,
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 1580,
-        "y": 1080,
+        "x": 1030,
+        "y": 260,
         "wires": [
             [
                 "20455b5ec56e18ee",
@@ -161,18 +160,19 @@
         "id": "20455b5ec56e18ee",
         "type": "function",
         "z": "7a45013094ff9e41",
-        "name": "",
-        "func": "const BIT_COUNT = 12\nconst volt_factor1 = 15.62\nconst volt_factor2 = 15.62\nconst volt_factor3 = 15.62\nconst volt_factor4 = 15.62\n\nvar data = {\n    voltage_1: msg.payload.adc_raw1 / (2 ** BIT_COUNT) * volt_factor1,\n    voltage_2: msg.payload.adc_raw2 / (2 ** BIT_COUNT) * volt_factor2,\n    voltage_3: msg.payload.adc_raw3 / (2 ** BIT_COUNT) * volt_factor3,\n    voltage_4: msg.payload.adc_raw4 / (2 ** BIT_COUNT) * volt_factor4\n}\nmsg.payload = data\nreturn msg;",
+        "name": "Convert data",
+        "func": "const BIT_COUNT = 12\nconst volt_factor1 = 15.62\nconst volt_factor2 = 15.62\nconst volt_factor3 = 15.62\nconst volt_factor4 = 15.62\n\nconst adc_conv1 = volt_factor1 / (2 ** BIT_COUNT) \nconst adc_conv2 = volt_factor2 / (2 ** BIT_COUNT) \nconst adc_conv3 = volt_factor3 / (2 ** BIT_COUNT) \nconst adc_conv4 = volt_factor4 / (2 ** BIT_COUNT) \n\nfunction round(value, decimal_places) {\n    return Math.round((10 ** decimal_places) * value) / (10 ** decimal_places)\n}\n\nvar data = {\n    voltage_1: round(msg.payload.adc_raw1 * adc_conv1, 3) ,\n    voltage_2: round(msg.payload.adc_raw2 * adc_conv2, 3),\n    voltage_3: round(msg.payload.adc_raw3 * adc_conv3, 3),\n    voltage_4: round(msg.payload.adc_raw4 * adc_conv4, 3)\n}\nmsg.payload = data\nreturn msg;",
         "outputs": 1,
         "noerr": 0,
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 1740,
-        "y": 1200,
+        "x": 1190,
+        "y": 360,
         "wires": [
             [
-                "08c02e5a68907f01"
+                "08c02e5a68907f01",
+                "0e3786e3dd417f6d"
             ]
         ]
     },
@@ -180,8 +180,8 @@
         "id": "71b84435204815fa",
         "type": "debug",
         "z": "7a45013094ff9e41",
-        "name": "",
-        "active": true,
+        "name": "RAW values",
+        "active": false,
         "tosidebar": true,
         "console": false,
         "tostatus": false,
@@ -189,8 +189,44 @@
         "targetType": "msg",
         "statusVal": "",
         "statusType": "auto",
-        "x": 1790,
-        "y": 1040,
+        "x": 1230,
+        "y": 200,
         "wires": []
+    },
+    {
+        "id": "5af63b2252f2b92c",
+        "type": "influxdb batch",
+        "z": "7a45013094ff9e41",
+        "influxdb": "1f8bde3686ef87b9",
+        "precision": "",
+        "retentionPolicy": "",
+        "name": "Save to InfluxDB",
+        "database": "BatteryMonitor",
+        "precisionV18FluxV20": "ms",
+        "retentionPolicyV18Flux": "",
+        "org": "organisation",
+        "bucket": "bucket",
+        "x": 1530,
+        "y": 360,
+        "wires": []
+    },
+    {
+        "id": "0e3786e3dd417f6d",
+        "type": "function",
+        "z": "7a45013094ff9e41",
+        "name": "Format Data",
+        "func": "msg.payload = [\n    {\n        measurement: \"battery_monitor\",\n        fields: {\n            voltage_1: msg.payload.voltage_1,\n            voltage_2: msg.payload.voltage_2,\n            voltage_3: msg.payload.voltage_3,\n            voltage_4: msg.payload.voltage_4,\n        },\n        tags: {\n            location: 'solar_battery'\n        }\n        \n    }\n\n]\n\nreturn msg;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1350,
+        "y": 460,
+        "wires": [
+            [
+                "5af63b2252f2b92c"
+            ]
+        ]
     }
 ]
