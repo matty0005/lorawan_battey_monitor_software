@@ -52,7 +52,7 @@
         "id": "b3ec5f3fde5bf7d5",
         "type": "mqtt in",
         "z": "7a45013094ff9e41",
-        "name": "TNN (CHANGE ME)",
+        "name": "TTN (CHANGE ME)",
         "topic": "v3/<USERNAME>/devices/<DEVICE_ID>/up",
         "qos": "2",
         "datatype": "auto",
