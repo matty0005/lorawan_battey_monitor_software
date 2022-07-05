@@ -40,6 +40,8 @@ sudo apt-get install python3 python3-pip -y
 sudo pip3 install docker-compose
 ```
 
+Finally, you'll need to reboot your machine.
+
 ### Building and running containers
 Once docker is installed, you'll need to clone this repository using the following.
 ```
