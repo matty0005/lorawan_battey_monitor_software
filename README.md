@@ -57,3 +57,6 @@ docker-compose up -d
 ```
 
 Once the images are built, the container should now be running and give you the terminal back as we started the containers in detached mode.
+
+# Notes
+By default, all 4 possible voltages are showing so it will automatically scale the graph to reflect this. You can remove the unused queries/voltages or set your y-limits manually.
